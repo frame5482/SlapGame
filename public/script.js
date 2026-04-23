@@ -62,10 +62,10 @@ function slap() {
     };
 
     emperorImg.style.transform = 'scale(0.8) rotate(15deg)';
-    
+
     // Determine if Heal or Damage
-    const isLoyal = selectedParty === 'ฝ่ายผัดดีต่อจักรพรรดิ';
-    
+    const isLoyal = selectedParty === 'ฝ่ายภักดีต่อจักรพรรดิ';
+
     playSlapSound();
     createSlapText(isLoyal);
 
@@ -78,7 +78,7 @@ function slap() {
     // Update counts
     localClicks++;
     pendingClicks++;
-    
+
     // Local Prediction: Update UI immediately
     const currentVal = parseInt(globalCounterDisplay.innerText.replace(/,/g, '')) || 0;
     globalCounterDisplay.innerText = (currentVal + 1).toLocaleString();
@@ -104,13 +104,13 @@ function createSlapText(isHeal) {
     const text = document.createElement('div');
     text.className = isHeal ? 'slap-effect heal' : 'slap-effect damage';
     text.innerText = isHeal ? 'HEAL +1' : 'DAMAGE -1';
-    
+
     // Random position within the character box
     const x = Math.random() * 100 - 50;
     const y = Math.random() * 100 - 50;
     text.style.left = `calc(50% + ${x}px)`;
     text.style.top = `calc(50% + ${y}px)`;
-    
+
     slapTarget.appendChild(text);
     setTimeout(() => text.remove(), 400);
 }
@@ -140,20 +140,20 @@ async function updateLeaderboard() {
     try {
         const response = await fetch('/api/parties');
         const parties = await response.json();
-        
+
         rankList.innerHTML = '';
         let totalDamage = 0;
         let totalHeal = 0;
         parties.forEach((party, index) => {
-            if (party.name === 'ฝ่ายผัดดีต่อจักรพรรดิ') {
+            if (party.name === 'ฝ่ายภักดีต่อจักรพรรดิ') {
                 totalHeal += party.clicks;
             } else {
                 totalDamage += party.clicks;
             }
-            
+
             const item = document.createElement('div');
             item.className = `rank-item ${party.name === selectedParty ? 'active' : ''}`;
-            
+
             let rankEmoji = '';
             if (index === 0) rankEmoji = '🥇 ';
             else if (index === 1) rankEmoji = '🥈 ';
@@ -165,7 +165,7 @@ async function updateLeaderboard() {
                 <span>${party.clicks.toLocaleString()}</span>
             `;
             rankList.appendChild(item);
-            
+
             if (party.name === selectedParty) {
                 // Prevent counter from jumping back to old server value if local is ahead
                 const serverClicks = party.clicks;
@@ -175,7 +175,7 @@ async function updateLeaderboard() {
                 }
             }
         });
-        
+
         // Update Global HP
         const globalHp = Math.min(MAX_HP, Math.max(0, MAX_HP - totalDamage + totalHeal));
         hpValueDisplay.innerText = globalHp.toLocaleString();
@@ -188,7 +188,7 @@ async function updateLeaderboard() {
             document.querySelector('.hp-message').innerText = "ถ้าหมดจะทำการยึดอำนาจไอ้ลิ";
             document.querySelector('.hp-section').style.background = "rgba(255, 0, 0, 0.1)";
         }
-        
+
     } catch (err) {
         console.error("Leaderboard update error:", err);
     }
