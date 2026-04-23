@@ -35,7 +35,7 @@ async function seedParties() {
         await Party.findOneAndUpdate(
             { name },
             { $setOnInsert: { clicks: 0 } },
-            { upsert: true, new: true }
+            { upsert: true, returnDocument: 'after' }
         );
     }
 }
@@ -44,22 +44,26 @@ async function seedParties() {
 app.get('/api/parties', async (req, res) => {
     try {
         const parties = await Party.find().sort({ clicks: -1 });
+        console.log(`Fetched ${parties.length} parties`);
         res.json(parties);
     } catch (err) {
+        console.error('Fetch error:', err.message);
         res.status(500).json({ error: err.message });
     }
 });
 
 app.post('/api/slap', async (req, res) => {
     const { partyName, count } = req.body;
+    console.log(`Slap received: ${partyName} +${count}`);
     try {
         const party = await Party.findOneAndUpdate(
             { name: partyName },
             { $inc: { clicks: count || 1 } },
-            { new: true }
+            { returnDocument: 'after' }
         );
         res.json(party);
     } catch (err) {
+        console.error('Slap error:', err.message);
         res.status(500).json({ error: err.message });
     }
 });

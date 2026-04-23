@@ -13,6 +13,10 @@ const currentPartyLabel = document.getElementById('current-party-label');
 const rankList = document.getElementById('rank-list');
 const volumeSlider = document.getElementById('volume-slider');
 const volumeIcon = document.getElementById('volume-icon');
+const hpValueDisplay = document.getElementById('hp-value');
+const hpBarFill = document.getElementById('hp-bar-fill');
+
+const MAX_HP = 1000000;
 
 // Image paths - User: Please ensure these exist in public/assets/
 const IDLE_IMG = 'assets/Gali.png';
@@ -51,10 +55,7 @@ function slap() {
     if (!selectedParty) return;
 
     // Visual feedback
-    // Try to change to slapped image
     emperorImg.src = SLAPPED_IMG;
-    // If it doesn't exist, it will trigger onerror in HTML or just show nothing.
-    // To prevent "nothing", we use a small trick:
     emperorImg.onerror = () => {
         emperorImg.src = IDLE_IMG;
         emperorImg.onerror = null;
@@ -62,8 +63,11 @@ function slap() {
 
     emperorImg.style.transform = 'scale(0.8) rotate(15deg)';
     
+    // Determine if Heal or Damage
+    const isLoyal = selectedParty === 'ฝ่ายผัดดีต่อจักรพรรดิ';
+    
     playSlapSound();
-    createSlapText();
+    createSlapText(isLoyal);
 
     // Reset image after delay
     setTimeout(() => {
@@ -78,6 +82,12 @@ function slap() {
     // Local Prediction: Update UI immediately
     const currentVal = parseInt(globalCounterDisplay.innerText.replace(/,/g, '')) || 0;
     globalCounterDisplay.innerText = (currentVal + 1).toLocaleString();
+
+    // Local HP Update
+    const currentHp = parseInt(hpValueDisplay.innerText.replace(/,/g, '')) || MAX_HP;
+    const newHp = isLoyal ? Math.min(MAX_HP, currentHp + 1) : Math.max(0, currentHp - 1);
+    hpValueDisplay.innerText = newHp.toLocaleString();
+    hpBarFill.style.width = `${(newHp / MAX_HP) * 100}%`;
 }
 
 function playSlapSound() {
@@ -90,14 +100,14 @@ function playSlapSound() {
     }
 }
 
-function createSlapText() {
+function createSlapText(isHeal) {
     const text = document.createElement('div');
-    text.className = 'slap-effect';
-    text.innerText = 'TROP!';
+    text.className = isHeal ? 'slap-effect heal' : 'slap-effect damage';
+    text.innerText = isHeal ? 'HEAL +1' : 'DAMAGE -1';
     
     // Random position within the character box
-    const x = Math.random() * 60 - 30; // Closer to center
-    const y = Math.random() * 60 - 30;
+    const x = Math.random() * 100 - 50;
+    const y = Math.random() * 100 - 50;
     text.style.left = `calc(50% + ${x}px)`;
     text.style.top = `calc(50% + ${y}px)`;
     
@@ -132,9 +142,15 @@ async function updateLeaderboard() {
         const parties = await response.json();
         
         rankList.innerHTML = '';
-        let totalClicks = 0;
-
+        let totalDamage = 0;
+        let totalHeal = 0;
         parties.forEach((party, index) => {
+            if (party.name === 'ฝ่ายผัดดีต่อจักรพรรดิ') {
+                totalHeal += party.clicks;
+            } else {
+                totalDamage += party.clicks;
+            }
+            
             const item = document.createElement('div');
             item.className = `rank-item ${party.name === selectedParty ? 'active' : ''}`;
             
@@ -151,10 +167,27 @@ async function updateLeaderboard() {
             rankList.appendChild(item);
             
             if (party.name === selectedParty) {
-                globalCounterDisplay.innerText = party.clicks.toLocaleString();
+                // Prevent counter from jumping back to old server value if local is ahead
+                const serverClicks = party.clicks;
+                const currentDisplay = parseInt(globalCounterDisplay.innerText.replace(/,/g, '')) || 0;
+                if (serverClicks > currentDisplay) {
+                    globalCounterDisplay.innerText = serverClicks.toLocaleString();
+                }
             }
-            totalClicks += party.clicks;
         });
+        
+        // Update Global HP
+        const globalHp = Math.min(MAX_HP, Math.max(0, MAX_HP - totalDamage + totalHeal));
+        hpValueDisplay.innerText = globalHp.toLocaleString();
+        hpBarFill.style.width = `${(globalHp / MAX_HP) * 100}%`;
+
+        if (globalHp <= 0) {
+            document.querySelector('.hp-message').innerText = "ยึดอำนาจสำเร็จแล้ว!!!";
+            document.querySelector('.hp-section').style.background = "rgba(0, 255, 0, 0.2)";
+        } else {
+            document.querySelector('.hp-message').innerText = "ถ้าหมดจะทำการยึดอำนาจไอ้ลิ";
+            document.querySelector('.hp-section').style.background = "rgba(255, 0, 0, 0.1)";
+        }
         
     } catch (err) {
         console.error("Leaderboard update error:", err);
@@ -164,5 +197,5 @@ async function updateLeaderboard() {
 function startLeaderboardUpdates() {
     updateLeaderboard();
     setInterval(syncSlaps, 1000);
-    setInterval(updateLeaderboard, 3000);
+    setInterval(updateLeaderboard, 1000); // More frequent updates
 }
