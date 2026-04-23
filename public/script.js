@@ -34,6 +34,7 @@ document.querySelectorAll('.party-card').forEach(card => {
         setTimeout(() => {
             selectionScreen.style.display = 'none';
             gameContainer.style.display = 'flex';
+            updateLeaderboard(); // Fetch initial scores immediately
             startLeaderboardUpdates();
         }, 500);
     });
@@ -73,6 +74,10 @@ function slap() {
     // Update counts
     localClicks++;
     pendingClicks++;
+    
+    // Local Prediction: Update UI immediately
+    const currentVal = parseInt(globalCounterDisplay.innerText.replace(/,/g, '')) || 0;
+    globalCounterDisplay.innerText = (currentVal + 1).toLocaleString();
 }
 
 function playSlapSound() {
@@ -132,8 +137,15 @@ async function updateLeaderboard() {
         parties.forEach((party, index) => {
             const item = document.createElement('div');
             item.className = `rank-item ${party.name === selectedParty ? 'active' : ''}`;
+            
+            let rankEmoji = '';
+            if (index === 0) rankEmoji = '🥇 ';
+            else if (index === 1) rankEmoji = '🥈 ';
+            else if (index === 2) rankEmoji = '🥉 ';
+            else rankEmoji = `${index + 1}. `;
+
             item.innerHTML = `
-                <span>${index + 1}. ${party.name}</span>
+                <span>${rankEmoji}${party.name}</span>
                 <span>${party.clicks.toLocaleString()}</span>
             `;
             rankList.appendChild(item);
