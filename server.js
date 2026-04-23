@@ -26,7 +26,7 @@ mongoose.connect(MONGODB_URI)
 async function seedParties() {
     const partyNames = [
         'ฝ่ายเครียดแค้นจักรพรรดิ',
-        'ฝ่ายยึดอำอาจ',
+        'ฝ่ายยึดอำนาจจักรพรรดิ',
         'ฝ่ายภักดีต่อจักรพรรดิ',
         'ฝ่ายไอ้ลิไอ้ควาย'
     ];
