@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SlapGali - ตบหน้าจักรพรรดิ</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;700;800&family=Inter:wght@400;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <!-- Selection Screen -->
+    <div id="selection-screen">
+        <h1 class="selection-title">มึงอยู่ฝ่ายไหน</h1>
+        <div class="party-grid">
+            <div class="party-card" data-party="ฝ่ายเครียดแค้นจักรพรรดิ">
+                <h3>1. ฝ่ายเครียดแค้นจักรพรรดิ</h3>
+            </div>
+            <div class="party-card" data-party="ฝ่ายยึดอำอาจ">
+                <h3>2. ฝ่ายยึดอำอาจ</h3>
+            </div>
+            <div class="party-card" data-party="ฝ่ายผัดดีต่อจักรพรรดิ">
+                <h3>3. ฝ่ายผัดดีต่อจักรพรรดิ</h3>
+            </div>
+            <div class="party-card" data-party="ฝ่ายไอ้ลิไอ้ควาย">
+                <h3>4. ฝ่ายไอ้ลิไอ้ควาย</h3>
+            </div>
+        </div>
+    </div>
+
+    <!-- Game Container -->
+    <div id="game-container">
+        <div class="top-section">
+            <div class="volume-control">
+                <span id="volume-icon">🔊</span>
+                <input type="range" id="volume-slider" min="0" max="1" step="0.1" value="1">
+            </div>
+            <div class="counter" id="global-counter">0</div>
+            <div class="party-label" id="current-party-label">เลือกฝ่ายเพื่อเริ่ม</div>
+        </div>
+
+        <div class="character-box" id="slap-target">
+            <img src="assets/Gali.png" alt="Emperor" class="character-img" id="emperor-img">
+        </div>
+
+        <div class="leaderboard" id="leaderboard">
+            <h2>อันดับพรรค</h2>
+            <div id="rank-list" class="rank-list">
+                <!-- Ranks will be injected here -->
+            </div>
+        </div>
+    </div>
+
+    <audio id="slap-sound" src="assets/SLAP.mp3" preload="auto"></audio>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
